@@ -3,6 +3,7 @@ package gtime
 import (
 	"bytes"
 	"encoding/json"
+	"strings"
 	"time"
 )
 
@@ -44,7 +45,24 @@ func (d *Duration) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (d *Duration) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var s string
+	if err := unmarshal(&s); err != nil {
+		return err
+	}
+	dur, err := time.ParseDuration(strings.Trim(s, `"`))
+	if err != nil {
+		return err
+	}
+	*d = Duration(dur)
+	return nil
+}
+
 func (d Duration) ToDuration() time.Duration {
+	return time.Duration(d)
+}
+
+func (d Duration) D() time.Duration {
 	return time.Duration(d)
 }
 
